@@ -1,6 +1,6 @@
 ## 1️⃣ Java Fundamentals
 
-### Object-Oriented Programming (each concept = 1 checkbox)
+### Object-Oriented Programming
 
 - **Encapsulation**
     - encapsulation allows protecting domain/businees model/data , instead of exposing fields they can be modified with controlled methods , example . wont expose a setemail but something like deactivate it …
@@ -360,11 +360,102 @@ users.contains(new User(1, "Alice")); // ❌ false if not overridden
 | **C — Consistency** | Database moves from **one valid state to another** | `email` column has unique constraint; inserting duplicate fails → DB remains consistent. |
 | **I — Isolation** | Transactions don’t interfere; **concurrent safety** | Two users trying to book the same seat: isolation ensures only one succeeds. |
 | **D — Durability** | Once committed, data is **permanent**, even on crash | After committing a payment, the record stays in the DB despite server failure. |
-- indexes reduce search time while increasing insert complexity
+- An **index** is a separate data structure (usually a **B-Tree**) that maps column values to **row pointers**, allowing the database to find rows **without scanning the entire table**. faster reads slower writes .
+
+```sql
+-- Create an index on a frequently queried column
+CREATE INDEX idx_users_email ON users(email);
+
+-- Query using the index
+SELECT * 
+FROM users
+WHERE email = 'a@b.com';
+-- 1. DB traverses the B-Tree index (O(log N))
+-- 2. Finds row pointer(s)
+-- 3. Fetches full row(s) from the table
+
+-- Index-only (covering index) example
+SELECT email
+FROM users
+WHERE email = 'a@b.com';
+-- No table access needed, result comes directly from the index
+
+-- Drop index if no longer needed
+DROP INDEX idx_users_email;
+```
+
+- A **view** is a **stored SQL query** that behaves like a virtual table , improves readabilty reuse complexe queries ….
+- views are updatable if they have no joins …. they abstract table structure and only expose important field and can be used to update tables 
+****
+
+```sql
+CREATE VIEW active_users AS
+SELECT id, name, email
+FROM users
+WHERE active = true;
+
+SELECT * FROM active_users;
+```
+
+### core sql syntaxe refresher
+
+```sql
+-- Base tables (already exist in the database)
+-- users(id, name)
+-- orders(id, user_id, amount, status)
+
+SELECT
+    u.id,                 -- user id (one row per user AFTER grouping)
+    u.name,               -- user name
+
+    COUNT(o.id) AS total_orders,
+    -- Number of PAID orders for this user
+    -- If user has 3 matching rows in orders → COUNT = 3
+
+    SUM(o.amount) AS total_spent,
+    -- Sum of amounts of PAID orders
+    -- Example: orders of 300 + 500 + 400 → SUM = 1200
+
+    AVG(o.amount) AS avg_order_amount
+    -- Average amount of PAID orders
+    -- Example: 1200 / 3 → 400
+
+FROM users u
+
+LEFT JOIN orders o
+    ON u.id = o.user_id
+    -- Temporary joined result is created in memory:
+    -- One row per (user × order)
+    -- Users without orders get NULLs for order columns
+
+WHERE o.status = 'PAID'
+-- FILTER STAGE (row-level)
+-- Removes all rows where:
+--  - order is not PAID
+--  - order is NULL (this turns LEFT JOIN into an INNER JOIN in practice)
+
+GROUP BY u.id, u.name
+-- GROUPING STAGE
+-- Rows are collapsed into ONE ROW PER USER
+-- Aggregations (COUNT, SUM, AVG) are computed here
+
+HAVING SUM(o.amount) > 1000
+-- FILTER STAGE (group-level)
+-- Users whose total_spent <= 1000 are removed from the result
+
+ORDER BY total_spent DESC;
+-- FINAL SORT
+-- Users with highest total_spent appear first
+
+```
 
 ### NoSQL (conceptual)
 
-- NoSQL exists to handle flexible, large-scale, distributed data that relational databases struggle with. Unlike SQL, it offers schema-less storage and horizontal scaling. Choose NoSQL when you need high performance, flexible schemas, or **distributed multi-region setups.**
+- NoSQL exists to handle flexible, large-scale, distributed data that relational databases struggle with. Unlike SQL, it offers schema-less storage and horizontal scaling.
+
+### jpa→hibernate→JEE→spring data jpa
+
+PA defines the standard for Java object persistence, Hibernate implements it, JEE required manual config with EntityManager , persistence unit and transactions, and Spring Boot abstracts all that boilerplate, letting us focus on entities, repositories, and business logic. 
 
 ---
 
@@ -659,11 +750,20 @@ public String getUser(@PathVariable @Min(1) int id) {
 - **Verify** → health checks, smoke tests
 - **Monitor** → logs, metrics, alerts
 
-### Code Quality (SonarQube)
+---
 
-- Run **after build, before deploy**
-- Analyzes bugs, vulnerabilities, code smells
-- Enforces **quality gates** (fail pipeline if not met)
-- Integrated via CI tool (GitHub Actions, GitLab CI, Jenkins)
+## ☁️ baaasics of cloud refreshers
+
+### Modèles de services Cloud
+
+- **IaaS** : Infrastructure (VM, réseau, stockage).
+    - *Quand* : besoin de contrôle total (OS, middleware).
+    - *Exemple* : VM sur AWS EC2 / OCI Compute.
+- **PaaS** : Plateforme gérée (runtime, DB managée).
+    - *Quand* : focus dev, moins d’ops.
+    - *Exemple* : AWS RDS, App Service.
+- **SaaS** : Application clé en main.
+    - *Quand* : usage métier.
+    - *Exemple* : Gmail, Salesforce.
 
 ---
