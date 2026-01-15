@@ -1,4 +1,4 @@
-## 1️⃣ Java Fundamentals 
+## 1️⃣ Java Fundamentals
 
 ### Object-Oriented Programming (each concept = 1 checkbox)
 
@@ -204,6 +204,67 @@ public class CollectionsDemo {
 | `CopyOnWriteArrayList` | Thread-safe list for concurrent read-heavy scenarios | Expensive writes, good for listeners/event lists |
 | `ConcurrentHashMap` | Thread-safe map | Great for backend multi-threaded caching or counters |
 
+### Exceptions , try catch statements
+
+An **exception** is an event that **disrupts the normal flow of a program**. It occurs when something unexpected happens (like invalid input, I/O failure, or programming errors).
+
+- **Checked Exceptions**
+    - Must be **declared** (`throws`) or **handled** (`try-catch`).
+    - Usually caused by **external factors**.
+    - Example: `IOException`, `SQLException`.
+- **Unchecked Exceptions (Runtime Exceptions)**
+    - **Do not need to be declared or handled**.
+    - Usually caused by **programming errors**.
+    - Example: `NullPointerException`, `ArrayIndexOutOfBoundsException`, `ArithmeticException`.
+- **Errors (special case, extends Throwable but not Exception)**
+    - Represent **serious problems** not meant to be caught.
+    - Example: `OutOfMemoryError`, `StackOverflowError`.
+
+try catch statements are for code safety , code example : 
+
+```java
+try {
+    int[] arr = {1, 2, 3};
+    System.out.println(arr[5]); // ArrayIndexOutOfBoundsException
+} catch (ArrayIndexOutOfBoundsException e) {
+    System.out.println("Caught exception: " + e.getMessage());
+} finally {
+    System.out.println("This always executes");
+}
+```
+
+### lambdas and streams
+
+lambdas are inline methods definition : `(parameters) -> expression` , they use functional interfaces , which are preexisting interfaces with one abstract method to be implemented , by the lambda that is , runnable example in concurrency and multithreading  
+
+```java
+Runnable r = () -> System.out.println("Running in a thread");
+```
+
+streams are a way to handel data sequentially , its lazy by design , syntaxe defines what u want to do but execution only happens when calling a terminal method 
+
+```java
+
+names.stream()
+     .filter(name -> {
+         System.out.println("Filtering " + name);
+         return name.startsWith("A");
+     }); // Nothing printed yet
+
+names.stream()
+     .filter(name -> {   //Intermediate operation
+         System.out.println("Filtering " + name);
+         return name.startsWith("A");
+     })
+     .toList(); // Printing happens now
+```
+
+1. **Lazy**: All intermediate operations (`sorted`, `limit`, `map`) are **not executed until terminal operation (`toList()`)**.
+2. **Pipeline**: Each operation returns a new **stream**, forming a chain.
+3. **Functional**: You **describe transformations**, not the iteration logic.
+4. **Immutable**: Original list `students` is untouched.
+5. **Efficient**: Operations like `limit` prevent unnecessary work on large collections.
+
 ### Object Equality & Null Safety
 
 - If two objects are equal, they must have the same hash code.
@@ -287,7 +348,7 @@ users.contains(new User(1, "Alice")); // ❌ false if not overridden
     ---
     
 
-## 2️⃣ Databases & Persistence 
+## 2️⃣ Databases & Persistence
 
 ### Relational Databases
 
@@ -307,7 +368,7 @@ users.contains(new User(1, "Alice")); // ❌ false if not overridden
 
 ---
 
-## 3️⃣ Spring & Spring Boot (CORE of the discussion)
+## 3️⃣ Spring & Spring Boot
 
 ### Spring Core Concepts
 
@@ -344,17 +405,16 @@ public class UserService {
 - when multiple options are available to inject we can either have a `@Primary` ie default or use `@Qualifier("paypalPayment")` to specify which one to use for a specific class .
 - **Spring commun annotations**
     - **Component & Stereotypes**
-        
-        A Bean is any object managed by the Spring container. `@Component` is just ONE way to declare a bean.
-        
+        - A Bean is any object managed by the Spring container. `@Component` is just ONE way to declare a bean.
+        - all stereotypes are `@components`  underneath , they all are managed by spring , but some annotations come with additional perks .
     
-    | Annotation | Meaning | Practical use |
-    | --- | --- | --- |
-    | `@Component` | Generic Spring bean | Utility or generic service |
-    | `@Service` | Business logic layer | Services |
-    | `@Repository` | Data access layer | Repositories / DAOs |
-    | `@Controller` | MVC Controller | Web controllers |
-    | `@RestController` | @Controller + `@ResponseBody` | REST APIs |
+    | Annotation | Meaning | Practical use | perks |
+    | --- | --- | --- | --- |
+    | `@Component` | Generic Spring bean | Utility or generic service | default |
+    | `@Service` | Business logic layer | Services | nothing |
+    | `@Repository` | Data access layer | Repositories / DAOs | exception translation,DataAccessException |
+    | `@Controller` | MVC Controller | Web controllers | expects views and returns html/templates |
+    | `@RestController` | @Controller + `@ResponseBody` | REST APIs | response is a json |
     - **Dependency Injection**
     
     | Annotation | Use |
@@ -362,6 +422,15 @@ public class UserService {
     | `@Autowired` | Inject dependency (constructor preferred) |
     | `@Qualifier` | Choose between multiple beans |
     | `@Primary` | Default bean if multiple exist |
+    - **injection types**
+        - with constructor based injection fields are final since they are injected with object creation
+        - with field injections u cant have it set to final since the object is made first then the field is injected when needed , final requires a simultanious creation
+    
+    | Type | How it works | When to use | Notes |
+    | --- | --- | --- | --- |
+    | Constructor | Inject via constructor | Required dependencies | Preferred, allows final fields |
+    | Field | Inject via field with `@Autowired` | Quick setup | Less safe, harder to test |
+    | Setter | Inject via setter method | Optional dependencies | Supports late/mutable injection |
     - **Lifecycle & Scope**
     
     | Annotation | Purpose |
@@ -372,16 +441,28 @@ public class UserService {
 - **Bean lifecycle (very high level)**
     - A bean is a Java object whose lifecycle is managed by Spring.
     - **lifecycle**
-        1. Bean Instantiation
-        2. Dependency Injection
-        3. Initialization
-        4. Ready to Use
-        5. Destruction (on app shutdown)
+    
+    ```java
+    [Bean Class]
+         |
+       Instantiation
+         |
+     Dependency Injection
+         |
+    @PostConstruct / init-method
+         |
+      Bean is Ready (Used by app)
+         |
+    @PreDestroy / destroy-method
+         |
+       Bean Destroyed
+    ```
+    
 
 ### Spring Boot
 
 - Spring Boot makes Spring usable fast
-- `@SpringBootApplication` is a convenience annotation that combines `@Configuration` (defines beans), `@ComponentScan` (detects components), and `@EnableAutoConfiguration` (auto-configures beans based on classpath dependencies), simplifying Spring Boot setup.
+- `@SpringBootApplication` is a convenience annotation that combines `@Configuration`  (defines beans), `@ComponentScan` (detects components), and `@EnableAutoConfiguration` (auto-configures beans based on classpath dependencies), simplifying Spring Boot setup , works with convention over configuration .
 
 ### Project Structure & Roles
 
@@ -463,7 +544,7 @@ public class UserService {
 
 ---
 
-## 4️⃣ REST APIs & Backend Design (VERY IMPORTANT)
+## 4️⃣ REST APIs & Backend Design
 
 ### REST Fundamentals
 
@@ -521,10 +602,38 @@ public class UserService {
 
 ### Validation & Errors
 
-- `@Valid` on request objects
+- `@Valid` on request objects , define validation rules on dtos or url params …
 - Common annotations: `@NotNull`, `@NotBlank`, `@Size`, `@Email`
 - Global handling with `@ControllerAdvice`
 - Return clear error messages
+
+```java
+// dto validation 
+@RestController
+@RequestMapping("/users")
+public class UserController {
+
+    @PostMapping
+    public String createUser(@RequestBody @Valid UserDTO user) {
+        return "User created: " + user.getName();
+    }
+}
+
+class UserDTO {
+    @NotBlank
+    private String name;
+
+    @Email
+    private String email;
+
+    // getters/setters
+}
+// path validation 
+@GetMapping("/users/{id}")
+public String getUser(@PathVariable @Min(1) int id) {
+    return "User " + id;
+}
+```
 
 ---
 
@@ -536,7 +645,7 @@ public class UserService {
 
 ---
 
-## 5️⃣ Containers, CI/CD & Cloud-Native 
+## 5️⃣ Containers, CI/CD & Cloud-Native
 
 ### Standard CI/CD Pipeline (Order)
 
@@ -550,3 +659,11 @@ public class UserService {
 - **Verify** → health checks, smoke tests
 - **Monitor** → logs, metrics, alerts
 
+### Code Quality (SonarQube)
+
+- Run **after build, before deploy**
+- Analyzes bugs, vulnerabilities, code smells
+- Enforces **quality gates** (fail pipeline if not met)
+- Integrated via CI tool (GitHub Actions, GitLab CI, Jenkins)
+
+---
