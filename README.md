@@ -1,4 +1,4 @@
-## 1️⃣ Java Fundamentals (Must be crystal clear)
+## 1️⃣ Java Fundamentals 
 
 ### Object-Oriented Programming (each concept = 1 checkbox)
 
@@ -287,7 +287,7 @@ users.contains(new User(1, "Alice")); // ❌ false if not overridden
     ---
     
 
-## 2️⃣ Databases & Persistence (Backend mindset)
+## 2️⃣ Databases & Persistence 
 
 ### Relational Databases
 
@@ -536,7 +536,7 @@ public class UserService {
 
 ---
 
-## 5️⃣ Containers, CI/CD & Cloud-Native Awareness
+## 5️⃣ Containers, CI/CD & Cloud-Native 
 
 ### Standard CI/CD Pipeline (Order)
 
@@ -550,9 +550,3 @@ public class UserService {
 - **Verify** → health checks, smoke tests
 - **Monitor** → logs, metrics, alerts
 
-### Code Quality (SonarQube)
-
-- Run **after build, before deploy**
-- Analyzes bugs, vulnerabilities, code smells
-- Enforces **quality gates** (fail pipeline if not met)
-- Integrated via CI tool (GitHub Actions, GitLab CI, Jenkins)
