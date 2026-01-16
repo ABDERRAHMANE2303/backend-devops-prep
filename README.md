@@ -752,6 +752,127 @@ public String getUser(@PathVariable @Min(1) int id) {
 
 ---
 
+## basics of linux navigations/administration
+
+### core linux commands \ most used
+
+| Permission | Value |
+| --- | --- |
+| r (read) | 4 |
+| w (write) | 2 |
+| x (exec) | 1 |
+
+```bash
+# LIST FILES
+ls -l        # long format
+ls -a        # show hidden files
+ls -lh       # human readable sizes
+
+# FILE & DIR MANAGEMENT
+mkdir test
+mkdir -p a/b/c     # create nested directories/parents if they dont exist 
+rm file.txt
+rm -r folder       # recursive delete (careful)
+rm -rf folder      # force delete (VERY careful)
+
+# COPY / MOVE
+cp file1 file2
+cp -r dir1 dir2
+mv old new          # rename or move
+
+# PERMISSIONS 
+chmod 755 file.sh  # rwxr-xr-x | user-group-others
+chmod +x script.sh
+chown user:group file #change ownership of the file 
+
+# FIND / SEARCH
+grep "ERROR" app.log
+grep -R "password" . #recursive , for repos 
+find . -name "*.log"
+
+# PROCESS & PORTS
+ps aux | grep java
+top
+htop
+lsof -i :8080      # who uses port 8080
+netstat -tulpn
+
+# NETWORK
+curl http://localhost:8080
+ping google.com
+
+# DISK & MEMORY
+df -h
+du -sh *
+free -m
+
+# SYSTEM
+systemctl status docker
+systemctl restart docker
+journalctl -u docker
+
+```
+
+### Ansible for multi-server management
+
+ansible allow managing multiple servers by having them as inventory then pushing required softwares/commands/administration  to them with idempotency , ie if an operation is repeated it gives the same result . 
+
+### basics of kubernetes , refresher
+
+| Object | Purpose |
+| --- | --- |
+| Pod | Runs container(s) |
+| Deployment | Manages Pods |
+| Service | Exposes Pods |
+| ConfigMap | Config values |
+| Secret | Sensitive config |
+| Ingress | HTTP routing |
+
+### git
+
+ a refresher cuz why not 
+
+```bash
+# Init repository
+git init
+
+# Check repo status
+git status
+
+# Stage files
+git add file.txt
+git add .
+
+# Commit changes
+git commit -m "Message"
+
+# View history
+git log --oneline
+
+# Branches
+git branch              # list
+git checkout -b feature # create + switch
+git checkout main       # switch branch
+
+# Merge branch
+git merge feature
+
+# Merge conflict (basic flow)
+# 1. Fix conflict in file
+# 2. git add file
+# 3. git commit
+
+# Rebase (local cleanup only)
+git rebase main
+
+# Abort rebase if needed
+git rebase --abort
+
+# Pull & push
+git pull
+git push
+```
+
 ## ☁️ baaasics of cloud refreshers
 
 ### Modèles de services Cloud
