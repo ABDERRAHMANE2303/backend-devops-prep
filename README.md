@@ -873,6 +873,124 @@ git pull
 git push
 ```
 
+
+#### React basics 
+UI library, not a framework
+
+Used to build Single Page Applications (SPA)
+
+Focuses only on view layer
+
+Project Structure (typical)
+src/
+ ├── components/   // reusable UI (Button, Modal)
+ ├── pages/        // full screens (Login, Dashboard)
+ ├── services/     // API calls, auth helpers
+ ├── App.jsx       // root component, routing
+ └── main.jsx      // bootstraps React into DOM
+
+Core Concepts
+Component
+
+Function that returns UI (JSX)
+
+function Hello() {
+  return <h1>Hello</h1>;
+}
+
+JSX
+
+HTML-like syntax inside JavaScript
+
+Allows embedding JS inside UI
+
+<h1>{username}</h1>
+
+Props
+
+Read-only data passed from parent → child
+
+Like function parameters
+
+<User name="Ali" />
+
+function User({ name }) {
+  return <p>{name}</p>;
+}
+
+State
+
+Local, mutable component data
+
+When state changes → component re-renders
+
+const [count, setCount] = useState(0);
+
+Hooks (main ones)
+
+useState → manage local state
+
+useEffect → side effects (API calls, subscriptions)
+
+useEffect(() => {
+  // runs after render
+}, []);
+
+State vs Props
+
+State: owned and modified by component
+
+Props: passed down, cannot be modified
+
+Data flows top → down
+
+API Calls
+
+React does not handle networking
+
+Use fetch or axios
+
+API calls done inside useEffect
+
+useEffect(() => {
+  fetch("/api/users")
+    .then(r => r.json())
+    .then(data => setUsers(data));
+}, []);
+
+
+Best practice:
+
+Move API logic to services/ folder
+
+Single Page Application (SPA)
+
+One HTML file
+
+Navigation handled client-side
+
+No page reloads
+
+Fast UX, smooth navigation
+
+Routing:
+
+<Route path="/login" element={<Login />} />
+
+SEO & React
+
+SPAs render content after JS runs
+
+Poor SEO by default
+
+Solutions:
+
+Server-Side Rendering (Next.js)
+
+Static Site Generation
+
+Pre-rendering for bots
+
 ## ☁️ baaasics of cloud refreshers
 
 ### Modèles de services Cloud
